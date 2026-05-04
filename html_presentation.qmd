@@ -1,0 +1,586 @@
+---
+title: "Template"
+subtitle: "Region Uppsala"
+author: 
+    - Jane Doe
+    - John Doe
+format: 
+    revealjs:
+      theme: theme.scss
+      logo: Figurer/RegionUppsala.Logo.CMYK.Liljeröd.svg
+      slide-number: true
+      transition: fade
+      self-contained: true
+      fig-align: center
+      code-fold: true
+      code-tools: true
+      scrollable: false          # ← Av: tvingar oss att hålla diagram inom sliden
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+
+required_pkgs <- c(
+  "tidyverse", "tidyr", "gt", "knitr",
+  "plotly", "ggplot2", "scales", "htmlwidgets", "sf", "leaflet"
+)
+new_pkgs <- required_pkgs[!required_pkgs %in% installed.packages()[, "Package"]]
+if (length(new_pkgs)) install.packages(new_pkgs, quiet = TRUE)
+
+library(tidyverse)
+library(tidyr)
+library(gt)
+library(knitr)
+library(plotly)
+library(ggplot2)
+library(scales)
+
+# ── Konstanter ──────────────────────────────────────────────────────────────
+BG      <- "#f7f9fb"   # Samma som $body-bg i theme.scss
+PRIMARY <- "#B81867"
+
+ru_colors <- c(
+  primär   = PRIMARY,
+  mörkgrå  = "#333333",
+  ljusgrå  = "#AAAAAA",
+  blå      = "#1F78B4",
+  grön     = "#33A02C",
+  orange   = "#FF7F00",
+  lila     = "#6A3D9A",
+  gul      = "#F4A736"
+)
+
+ru_palette <- function(n) colorRampPalette(c("#4AA271", BG, PRIMARY))(n)
+
+# ── Gemensamt ggplot2-tema ──────────────────────────────────────────────────
+# Applicera på ALLA ggplot-objekt före ggplotly() för konsekvent bakgrund
+theme_ru <- function(base_size = 13) {
+  theme_minimal(base_size = base_size) %+replace%
+    theme(
+      plot.background   = element_rect(fill = BG, color = NA),
+      panel.background  = element_rect(fill = BG, color = NA),
+      legend.background = element_rect(fill = BG, color = NA),
+      legend.key        = element_rect(fill = BG, color = NA),
+      panel.grid.major  = element_line(color = "#e0e4ea"),
+      panel.grid.minor  = element_blank()
+    )
+}
+
+# ── Gemensam plotly layout-funktion ────────────────────────────────────────
+# Anropar layout() + config() med Region Uppsala-standarder.
+# Användning: plot_ly(...) |> ru_layout(title = "Min titel")
+ru_layout <- function(p,
+                      title  = NULL,
+                      xaxis  = list(),
+                      yaxis  = list(),
+                      legend = list(orientation = "h", y = -0.18, x = 0.2),
+                      width  = 1000,   # Samma som fungerande HTML-presentationer
+                      height = 430,
+                      ...) {
+  p |>
+    layout(
+      title        = if (!is.null(title)) list(text = title,
+                                               x    = 0.02,
+                                               font = list(size = 15)) else NULL,
+      paper_bgcolor = "rgba(0,0,0,0)",  # Transparent → slidens BG syns igenom
+      plot_bgcolor  = "rgba(0,0,0,0)",  # Transparent → slidens BG syns igenom
+      font   = list(family = "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
+                    size   = 13,
+                    color  = "black"),
+      xaxis  = modifyList(list(showgrid  = TRUE,
+                                gridcolor = "#e0e4ea",
+                                zeroline  = FALSE), xaxis),
+      yaxis  = modifyList(list(showgrid  = TRUE,
+                                gridcolor = "#e0e4ea",
+                                zeroline  = FALSE), yaxis),
+      legend   = legend,
+      autosize = FALSE,   # ← Måste vara FALSE för att width/height ska gälla
+      width    = width,
+      height   = height,
+      margin   = list(t = 50, b = 30, l = 60, r = 20),
+      ...
+    ) |>
+    config(displayModeBar = FALSE)
+}
+```
+
+# Innehåll {.unnumbered}
+
+::: incremental
+1.  [Interaktiva diagram – grunder](#interaktiva-diagram)
+2.  [Stapeldiagram](#stapeldiagram)
+3.  [Linjediagram](#linjediagram)
+4.  [Spridningsdiagram](#spridningsdiagram)
+5.  [Karta](#karta)
+6.  [Interaktiv tabell](#interaktiv-tabell)
+7.  [Tabellexempel – socioekonomiskt index](#tabellexempel)
+8.  [Tips & Bästa praxis](#tips)
+:::
+
+------------------------------------------------------------------------
+
+# Interaktiva diagram {#interaktiva-diagram}
+
+## Varför interaktiva diagram?
+
+Interaktiva diagram skapade med **plotly** gör det möjligt för åhöraren att:
+
+::: incremental
+-   🔍 **Zooma in** på intressanta datapunkter
+-   🖱️ **Hovra** för att se exakta värden i en tooltip
+-   👁️ **Dölja/visa** dataserier via legenden
+-   📸 **Exportera** som PNG via verktygsfältet
+-   🔄 **Återställa** vyn med ett klick
+:::
+
+------------------------------------------------------------------------
+
+## Hur skapar man ett interaktivt diagram?
+
+Det finns **två huvudmetoder** i R:
+
+::::: columns
+::: {.column width="50%"}
+### Metod 1 – `ggplotly()`
+
+Konvertera ett befintligt `ggplot2`-objekt:
+
+``` r
+p <- ggplot(data, aes(x, y)) +
+  geom_bar(stat = "identity") +
+  theme_ru()       # <- Regionens tema
+
+ggplotly(p) |> ru_layout()
+```
+
+✅ Enkelt om du redan kan ggplot2\
+⚠️ Inte alla ggplot-element stöds fullt ut
+:::
+
+::: {.column width="50%"}
+### Metod 2 – `plot_ly()`
+
+Bygg direkt i plotly:
+
+``` r
+plot_ly(
+  data,
+  x = ~kategori,
+  y = ~värde,
+  type = "bar",
+  color = I(PRIMARY)
+) |>
+  ru_layout(title = "Min titel")
+```
+
+✅ Full kontroll och fler funktioner\
+⚠️ Kräver att man lär sig plotly-syntax
+:::
+:::::
+
+------------------------------------------------------------------------
+
+# Stapeldiagram {#stapeldiagram}
+
+## Enkelt stapeldiagram med `ggplotly()`
+
+```{r stapel-enkel}
+#| echo: true
+
+df_vård <- tibble(
+  Kvartal  = paste0("Q", 1:4, " 2023"),
+  Besök    = c(12450, 13800, 11200, 14600),
+  Kategori = "Primärvård"
+)
+
+p_stapel <- ggplot(df_vård,
+                   aes(x    = Kvartal,
+                       y    = Besök,
+                       fill = Kategori,
+                       text = paste0("<b>", Kvartal, "</b><br>",
+                                     "Besök: ", format(Besök, big.mark = " ")))) +
+  geom_col(width = 0.6) +
+  scale_fill_manual(values = c("Primärvård" = PRIMARY)) +
+  scale_y_continuous(labels = label_number(big.mark = " ")) +
+  labs(title = "Antal primärvårdsbesök per kvartal",
+       x = NULL, y = "Antal besök", fill = NULL) +
+  theme_ru() +                    # <- Regionens tema med BG-bakgrund
+  theme(legend.position = "none")
+
+ggplotly(p_stapel, tooltip = "text") |>
+  ru_layout()                     # <- Sätter BG, höjd och döljer verktygsfält
+```
+
+------------------------------------------------------------------------
+
+## Grupperat stapeldiagram
+
+```{r stapel-grupperat}
+#| echo: true
+
+df_grupp <- tibble(
+  År       = rep(2021:2023, each = 3),
+  Kategori = rep(c("Primärvård", "Specialistvård", "Akutvård"), 3),
+  Besök    = c(48000, 21000, 8500, 51000, 22500, 9200, 53500, 24000, 8800)
+)
+
+p_grupp <- ggplot(df_grupp,
+                   aes(x    = factor(År),
+                       y    = Besök,
+                       fill = Kategori,
+                       text = paste0("<b>", Kategori, " – ", År, "</b><br>",
+                                     "Besök: ", format(Besök, big.mark = " ")))) +
+  geom_col(position = "dodge", width = 0.7) +
+  scale_fill_manual(values = c(
+    "Primärvård"     = PRIMARY,
+    "Specialistvård" = "#1F78B4",
+    "Akutvård"       = "#FF7F00"
+  )) +
+  scale_y_continuous(labels = label_number(big.mark = " ")) +
+  labs(title = "Vårdbesök per vårdnivå och år",
+       x = "År", y = "Antal besök", fill = NULL) +
+  theme_ru()
+
+ggplotly(p_grupp, tooltip = "text") |>
+  ru_layout()
+```
+
+------------------------------------------------------------------------
+
+# Linjediagram {#linjediagram}
+
+## Tidsserie med konfidensintervall
+
+```{r linje-konfidensintervall}
+#| echo: true
+
+set.seed(42)
+df_ts <- tibble(
+  Månad = seq(as.Date("2022-01-01"), by = "month", length.out = 24),
+  Medel = cumsum(rnorm(24, mean = 50, sd = 10)) + 1000,
+  Nedre = Medel - runif(24, 20, 60),
+  Övre  = Medel + runif(24, 20, 60)
+)
+
+plot_ly(df_ts, x = ~Månad) |>
+  add_ribbons(
+    ymin      = ~Nedre,
+    ymax      = ~Övre,
+    fillcolor = "rgba(184,24,103,0.15)",
+    line      = list(color = "transparent"),
+    name      = "95% KI",
+    hoverinfo = "skip"
+  ) |>
+  add_lines(
+    y    = ~Medel,
+    line = list(color = PRIMARY, width = 2.5),
+    name = "Medelvärde",
+    text = ~paste0("<b>", format(Månad, "%B %Y"), "</b><br>",
+                   "Medel: ", round(Medel), "<br>",
+                   "95% KI: [", round(Nedre), "–", round(Övre), "]"),
+    hoverinfo = "text"
+  ) |>
+  ru_layout(
+    title = "Månadsvis trend med konfidensintervall",
+    xaxis = list(title = ""),
+    yaxis = list(title = "Värde")
+  )
+```
+
+------------------------------------------------------------------------
+
+## Flera linjer – jämförelse
+
+```{r linje-flera}
+#| echo: true
+
+set.seed(7)
+kommuner <- c("Uppsala", "Enköping", "Tierp", "Östhammar")
+df_multi <- expand_grid(År = 2015:2023, Kommun = kommuner) |>
+  mutate(Värde = case_when(
+    Kommun == "Uppsala"   ~ 75 + cumsum(rnorm(n(), 1.2, 2))[row_number()],
+    Kommun == "Enköping"  ~ 60 + cumsum(rnorm(n(), 0.8, 2))[row_number()],
+    Kommun == "Tierp"     ~ 50 + cumsum(rnorm(n(), 0.5, 2))[row_number()],
+    Kommun == "Östhammar" ~ 45 + cumsum(rnorm(n(), 0.3, 2))[row_number()]
+  )) |>
+  group_by(Kommun) |> ungroup()
+
+färger <- c(Uppsala = PRIMARY, Enköping = "#1F78B4",
+            Tierp = "#33A02C", Östhammar = "#FF7F00")
+
+plot_ly(df_multi,
+        x         = ~År,
+        y         = ~Värde,
+        color     = ~Kommun,
+        colors    = färger,
+        type      = "scatter",
+        mode      = "lines+markers",
+        text      = ~paste0("<b>", Kommun, " – ", År, "</b><br>",
+                            "Värde: ", round(Värde, 1)),
+        hoverinfo = "text") |>
+  ru_layout(
+    title = "Kommunjämförelse 2015–2023",
+    xaxis = list(title = "År", dtick = 1),
+    yaxis = list(title = "Indikatorvärde")
+  )
+```
+
+------------------------------------------------------------------------
+
+# Spridningsdiagram {#spridningsdiagram}
+
+## Scatter plot med storlek och färg
+
+```{r scatter}
+#| echo: true
+
+set.seed(21)
+df_scatter <- tibble(
+  Område       = paste("DeSO", sprintf("%02d", 1:40)),
+  Utbildning   = runif(40, 10, 60),
+  Arbetslöshet = runif(40, 2, 20),
+  Befolkning   = sample(500:8000, 40),
+  Typ          = sample(c("Urban", "Förort", "Landsbygd"), 40, replace = TRUE)
+)
+
+plot_ly(df_scatter,
+        x         = ~Utbildning,
+        y         = ~Arbetslöshet,
+        size      = ~Befolkning,
+        color     = ~Typ,
+        colors    = c(Urban = PRIMARY, Förort = "#1F78B4", Landsbygd = "#33A02C"),
+        type      = "scatter",
+        mode      = "markers",
+        marker    = list(opacity = 0.75, sizemode = "diameter"),
+        text      = ~paste0("<b>", Område, "</b><br>",
+                            "Typ: ", Typ, "<br>",
+                            "Låg utbildning: ", round(Utbildning, 1), "%<br>",
+                            "Arbetslöshet: ", round(Arbetslöshet, 1), "%<br>",
+                            "Befolkning: ", format(Befolkning, big.mark = " ")),
+        hoverinfo = "text") |>
+  ru_layout(
+    title = "Utbildning vs Arbetslöshet per DeSO-område",
+    xaxis = list(title = "Andel med låg utbildning (%)"),
+    yaxis = list(title = "Andel arbetslösa (%)")
+  )
+```
+
+------------------------------------------------------------------------
+
+# Karta {#karta}
+
+## Leaflet-karta med popup
+
+```{r karta-exempel}
+#| echo: true
+#| eval: true
+
+library(sf)
+library(leaflet)
+
+kommuner_sf <- st_read("Kommun_Sweref99TM.shp", quiet = TRUE) |>
+  st_transform(crs = 4326)
+
+uppsala_sf <- kommuner_sf |>
+  filter(startsWith(KnKod, "03"))
+
+df_karta <- tibble(
+  KnKod = c("0380", "0381", "0382", "0330", "0331",
+             "0305", "0319", "0360"),
+  Värde = c(72.3, 65.1, 58.7, 61.2, 69.4, 63.8, 67.2, 60.5)
+)
+
+karta_data       <- uppsala_sf |> left_join(df_karta, by = "KnKod")
+kommun_centroids <- st_centroid(uppsala_sf)
+
+pal <- colorNumeric(
+  palette  = c(BG, PRIMARY),
+  domain   = karta_data$Värde,
+  na.color = "#cccccc"
+)
+
+leaflet(karta_data) |>
+  addProviderTiles(providers$Esri.WorldTopoMap) |>
+  addPolygons(
+    fillColor   = ~pal(Värde),
+    fillOpacity = 0.8,
+    color       = "white",
+    weight      = 1.5,
+    popup = ~paste0(
+      "<div style='font-family:Segoe UI,sans-serif; min-width:160px;'>",
+        "<h4 style='margin:0 0 8px 0; color:", PRIMARY,
+              "; border-bottom:2px solid ", PRIMARY,
+              "; padding-bottom:4px;'>", KnNamn, "</h4>",
+        "<table style='width:100%; font-size:13px;'>",
+          "<tr><td style='color:#555;'>Kommunkod</td>",
+               "<td style='text-align:right; font-weight:bold;'>",
+               KnKod, "</td></tr>",
+          "<tr><td style='color:#555;'>Värde</td>",
+               "<td style='text-align:right; font-weight:bold;'>",
+               ifelse(is.na(Värde), "saknas", round(Värde, 1)),
+               "</td></tr>",
+        "</table></div>"
+    ),
+    popupOptions = popupOptions(closeButton  = TRUE,
+                                closeOnClick = FALSE,
+                                maxWidth     = 250),
+    label = ~paste0(KnNamn, ": ", round(Värde, 1)),
+    labelOptions = labelOptions(style     = list("font-weight" = "bold"),
+                                direction = "auto"),
+    highlightOptions = highlightOptions(
+      weight       = 3,
+      color        = PRIMARY,
+      fillOpacity  = 0.95,
+      bringToFront = TRUE
+    )
+  ) |>
+  addLegend(pal = pal, values = ~Värde, title = "Värde",
+            position = "bottomright") |>
+  addLabelOnlyMarkers(
+    data = kommun_centroids,
+    label = ~KnNamn,
+    labelOptions = labelOptions(
+      noHide    = TRUE,
+      direction = "center",
+      textOnly  = TRUE,
+      style = list(
+        "color"       = "black",
+        "font-size"   = "12px",
+        "font-weight" = "bold",
+        "text-shadow" = paste(
+          "1px 1px 2px white, -1px 1px 2px white,",
+          "1px -1px 2px white, -1px -1px 2px white"
+        )
+      )
+    )
+  )
+```
+
+
+# Tabellexempel {#tabellexempel}
+
+## Socioekonomiskt index – DeSO
+
+Indexet sammanväger tre indikatorer för varje **DeSO** i Sverige:
+
+-   Andel med låg ekonomisk standard
+-   Andel 20–64 år med endast förgymnasial utbildning
+-   Andel 20–64 år arbetslösa längre än 6 månader
+
+$$
+\text{Socioekonomiskt index}_i = \frac{\text{Låg standard}_i + \text{Låg utbildning}_i + \text{Arbetslösa}_i}{3}
+$$
+
+
+```{r gt-tabell}
+#| fig-align: center
+#| out.width: 70%
+#| out-height: 40%
+
+df_index <- tibble(
+  Områdestyp = 1:5,
+  Beskrivning = c(
+    "Stora socioekonomiska utmaningar",
+    "Socioekonomiska utmaningar",
+    "Blandade socioekonomiska förutsättningar",
+    "Goda socioekonomiska förutsättningar",
+    "Mycket goda socioekonomiska förutsättningar"
+  ),
+  Villkor = c(
+    "$I_i \\geq \\mu + 2\\sigma$",
+    "$\\mu + \\sigma \\leq I_i < \\mu + 2\\sigma$",
+    "$\\mu \\leq I_i < \\mu + \\sigma$",
+    "$\\mu - \\sigma \\leq I_i < \\mu$",
+    "$I_i < \\mu - \\sigma$"
+  )
+)
+
+custom_colors <- colorRampPalette(c("#D57667", "white", "#4AA271"))(5)
+
+df_index |>
+  gt() |>
+  tab_header(title = "Indelning av DeSO enligt socioekonomiskt index") |>
+  data_color(columns = c(Områdestyp), palette = custom_colors) |>
+  fmt_markdown(columns = c(Villkor))
+```
+
+------------------------------------------------------------------------
+
+# Tips & Bästa praxis {#tips}
+
+## Checklista för interaktiva presentationer
+
+::::::: columns
+:::: {.column width="50%"}
+### ✅ Gör så här
+
+::: incremental
+-   Använd `theme_ru()` på alla ggplot-objekt
+-   Avsluta alla plotly-kedjor med `ru_layout()`
+-   Sätt `scrollable: false` – diagram ska **rymmas på sliden**
+-   Sätt `height = CHART_H` i `ru_layout()` för konsekvent storlek
+-   Testa alltid i **webbläsaren**, inte RStudio Viewer
+:::
+::::
+
+:::: {.column width="50%"}
+### ⚠️ Undvik
+
+::: incremental
+-   `fig-height` \> 4 när kod visas på samma slide
+-   `scrollable: true` på diagram-slides – ser oproffsigt ut
+-   Blanda `theme_bw()` med `theme_ru()` – inkonsekvent bakgrund
+-   Mer än **ett interaktivt diagram per slide**
+-   `facet_wrap()` + `ggplotly()` – ger dålig layout
+:::
+::::
+:::::::
+
+------------------------------------------------------------------------
+
+## Snabbreferens – `theme_ru()` och `ru_layout()`
+
+``` r
+# ── ggplot2 + ggplotly ────────────────────────────────────────────────────
+p <- ggplot(data, aes(x, y, fill = grupp, text = tooltip)) +
+  geom_col() +
+  theme_ru()                          # <- BG-färg, rutnät, typsnitt
+
+ggplotly(p, tooltip = "text") |>
+  ru_layout(title = "Min rubrik")     # <- BG, höjd, döljer verktygsfält
+
+# ── Direkt plot_ly ────────────────────────────────────────────────────────
+plot_ly(data, x = ~x, y = ~y, ...) |>
+  ru_layout(
+    title  = "Min rubrik",
+    xaxis  = list(title = "X-axel"),
+    yaxis  = list(title = "Y-axel"),
+    height = 380                      # <- Justera per slide vid behov
+  )
+
+# ── Tooltip-mall ──────────────────────────────────────────────────────────
+text = ~paste0(
+  "<b>", Rubrik, "</b><br>",
+  "Värde: ", round(Värde, 1), "<br>",
+  "Andel: ", percent(Andel, accuracy = 0.1)
+)
+```
+
+------------------------------------------------------------------------
+
+## Vanliga paket för interaktiva visualiseringar
+
+| Paket         | Användningsområde                  
+|---------------|------------------------------------
+| `plotly`      | Allmänna diagram + 3D              
+| `leaflet`     | Interaktiva kartor                 
+| `DT`          | Sök- och sorterbara tabeller       
+| `highcharter` | Avancerade diagram (Highcharts JS) 
+| `echarts4r`   | Moderna animerade diagram          
+| `ggiraph`     | ggplot2 med hover-effekter         
+
+

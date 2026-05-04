@@ -1,0 +1,97 @@
+/*-- scss:defaults --*/
+// Definierar grundläggande variabler för färger, bakgrund och typsnitt
+
+$primary: #B81867;        // Huvudfärg som används för rubriker
+$secondary: #B81867;      // Sekundär accentfärg för länkar och detaljer
+$accent-border: #B81867;  // Färg för den nedre bården
+$body-bg: #f7f9fb;        // Standardbakgrund för presentationen
+$font-family-sans-serif: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; // Typsnitt för text
+
+/*-- scss:rules --*/
+// Anpassar utseendet på olika element i Reveal.js-presentationen
+
+.reveal {
+  background-color: $body-bg; // Anger presentationens bakgrundsfärg
+
+  .slides {
+  /* Alla slides */
+  h1, h2, h3 {
+    font-weight: 700;   // Tvingar rubriker att alltid vara bold
+    color: $primary;    // Färg för rubriker
+  }
+  
+   h1 {
+    font-size: 1.5em !important; // Huvudrubrik
+    font-weight: 700 !important;
+  }
+  
+  h2 {
+    font-size: 1.3em !important; // Huvudrubrik
+    font-weight: 700 !important;
+  }
+  
+  
+    /* Förstasidans h1 större */
+  .title-slide h1 {
+    font-size: 2em !important;
+  }
+  
+  .title-slide h2 {
+    font-size: 1em !important; // Andranivå
+    font-weight: 700 !important;
+  }
+  
+  .title-slide h3 {
+    font-size: 1em !important; // Tredjenivå
+    font-weight: 700 !important;
+  }
+  
+  /* Minska textstorlek för alla bullet points */
+  ul, li {
+  font-size: 0.8em;   /* 0.8em = 80% av standardstorlek */
+  }
+  
+  /* Brödtext */
+  p {
+    color: #000000;
+    font-size: 0.7em; // Vanlig textstorlek
+  }
+
+  /* Länkar */
+  a {
+    color: $secondary;
+  }
+}
+
+  // Skapar en fast bård längst ned som täcker hela sidans bredd
+  &::after {
+    content: "";
+    position: fixed;   // Fixerar bården så att den alltid syns längst ned
+    bottom: 0;
+    left: 0;
+    width: 100%;       // Täcker hela sidans bredd
+    height: 40px;     // Bestämmer bårdens höjd (justera efter önskemål)
+    background-color: $accent-border; // Färgar bården i #B81867
+    z-index: 5;        // Lägger bården bakom logotypen men ovanpå bakgrunden
+  }
+  
+.slide-logo {
+  position: fixed;
+  top: 30px;  // 
+  left: 60px;
+  width: 150px;
+  transform: scale(3);
+  z-index: 10;
+}
+ 
+ // Storlek på grafer
+  .reveal .plotly {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+}
+}
+
+
