@@ -9,7 +9,7 @@ Samling av återanvändbara presentationsmallar för analyser och rapporter inom
 | Fil / Mapp | Beskrivning |
 |---|---|
 | `index.qmd` | Quarto RevealJS-mall – interaktiv HTML-presentation |
-| `template.pptx` | PowerPoint-mall – statisk presentation |
+| `index.pptx` | PowerPoint-mall – statisk presentation |
 | `theme.scss` | SCSS-tema för RevealJS (färger, typsnitt, layout) |
 | `Kommun_Sweref99TM.shp` | Shapefil med kommungränser, hela Sverige (SWEREF99TM) |
 | `Figurer/` | Logotyper och grafiska resurser |
@@ -29,7 +29,7 @@ quarto render index.qmd
 
 Renderar till en självständig HTML-fil. Öppna i webbläsaren – **inte** i RStudio Viewer.
 
-### PowerPoint (`template.pptx`)
+### PowerPoint (`index.pptx`)
 
 Öppna direkt i PowerPoint eller Google Slides. Håll dig till de fördefinierade layouterna för att bevara den grafiska profilen.
 
