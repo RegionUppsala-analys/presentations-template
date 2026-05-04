@@ -8,7 +8,7 @@ Samling av återanvändbara presentationsmallar för analyser och rapporter inom
 
 | Fil / Mapp | Beskrivning |
 |---|---|
-| `template.qmd` | Quarto RevealJS-mall – interaktiv HTML-presentation |
+| `index.qmd` | Quarto RevealJS-mall – interaktiv HTML-presentation |
 | `template.pptx` | PowerPoint-mall – statisk presentation |
 | `theme.scss` | SCSS-tema för RevealJS (färger, typsnitt, layout) |
 | `Kommun_Sweref99TM.shp` | Shapefil med kommungränser, hela Sverige (SWEREF99TM) |
@@ -18,13 +18,13 @@ Samling av återanvändbara presentationsmallar för analyser och rapporter inom
 
 ## Kom igång
 
-### RevealJS (`template.qmd`)
+### RevealJS (`index.qmd`)
 
 Kräver [R](https://www.r-project.org/) och [Quarto](https://quarto.org/) (≥ 1.4).
 
 ```r
 # Paket installeras automatiskt vid första körning
-quarto render template.qmd
+quarto render index.qmd
 ```
 
 Renderar till en självständig HTML-fil. Öppna i webbläsaren – **inte** i RStudio Viewer.
@@ -43,7 +43,7 @@ Renderar till en självständig HTML-fil. Öppna i webbläsaren – **inte** i R
 | Bakgrund | `#f7f9fb` |
 | Typsnitt | Segoe UI |
 
-Färger och typsnitt är definierade i `theme.scss` och som konstanter (`PRIMARY`, `BG`) i setup-chunken i `template.qmd` – ändra på ett ställe, uppdateras överallt.
+Färger och typsnitt är definierade i `theme.scss` och som konstanter (`PRIMARY`, `BG`) i setup-chunken i `index.qmd` – ändra på ett ställe, uppdateras överallt.
 
 ---
 

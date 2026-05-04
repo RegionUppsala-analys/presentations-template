@@ -460,7 +460,6 @@ leaflet(karta_data) |>
   )
 ```
 
-
 # Tabellexempel {#tabellexempel}
 
 ## Socioekonomiskt index – DeSO
@@ -474,7 +473,6 @@ Indexet sammanväger tre indikatorer för varje **DeSO** i Sverige:
 $$
 \text{Socioekonomiskt index}_i = \frac{\text{Låg standard}_i + \text{Låg utbildning}_i + \text{Arbetslösa}_i}{3}
 $$
-
 
 ```{r gt-tabell}
 #| fig-align: center
@@ -574,13 +572,11 @@ text = ~paste0(
 
 ## Vanliga paket för interaktiva visualiseringar
 
-| Paket         | Användningsområde                  
-|---------------|------------------------------------
-| `plotly`      | Allmänna diagram + 3D              
-| `leaflet`     | Interaktiva kartor                 
-| `DT`          | Sök- och sorterbara tabeller       
-| `highcharter` | Avancerade diagram (Highcharts JS) 
-| `echarts4r`   | Moderna animerade diagram          
-| `ggiraph`     | ggplot2 med hover-effekter         
-
-
+| Paket         | Användningsområde                  |
+|---------------|------------------------------------|
+| `plotly`      | Allmänna diagram + 3D              |
+| `leaflet`     | Interaktiva kartor                 |
+| `DT`          | Sök- och sorterbara tabeller       |
+| `highcharter` | Avancerade diagram (Highcharts JS) |
+| `echarts4r`   | Moderna animerade diagram          |
+| `ggiraph`     | ggplot2 med hover-effekter         |
