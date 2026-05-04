@@ -1,6 +1,10 @@
 # Presentationsmallar – Region Uppsala
 
-Samling av återanvändbara presentationsmallar för analyser och rapporter inom Region Uppsala. Mallarna delar samma grafiska profil och färgpalett. Datat som visas i html_presentations är syntetiskt och används endast för att visa diagram-exempel.
+Samling av återanvändbara presentationsmallar för analyser och rapporter inom Region Uppsala. Mallarna delar samma grafiska profil och färgpalett. 
+Data som visas i html_presentations är påhittat och används endast för att visa diagram-exempel.
+
+För att se exempel på interaktiva presentationer:
+[Klicka här](https://regionuppsala-analys.github.io/presentations-template/#/title-slide)
 
 ---
 
@@ -54,6 +58,4 @@ R        ≥ 4.3      tidyverse, plotly, leaflet, sf, gt
 Quarto   ≥ 1.4
 ```
 
----
 
-*Region Uppsala – Analysenheten*
