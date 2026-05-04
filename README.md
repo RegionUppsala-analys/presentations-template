@@ -50,7 +50,7 @@ Färger och typsnitt är definierade i `theme.scss` och som konstanter (`PRIMARY
 ## Krav
 
 ```
-R        ≥ 4.3      tidyverse, plotly, leaflet, sf, DT, gt
+R        ≥ 4.3      tidyverse, plotly, leaflet, sf, gt
 Quarto   ≥ 1.4
 ```
 
