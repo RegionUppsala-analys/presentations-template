@@ -47,29 +47,6 @@ Färger och typsnitt är definierade i `theme.scss` och som konstanter (`PRIMARY
 
 ---
 
-## Interaktiva diagram (RevealJS)
-
-Mallen innehåller färdiga hjälpfunktioner:
-
-- **`theme_ru()`** – ggplot2-tema med regionens bakgrundsfärg och rutnät
-- **`ru_layout()`** – plotly-layout med fast storlek (1000 × 430 px), transparent bakgrund och dold verktygsfält
-
-```r
-# Exempel
-p <- ggplot(data, aes(x, y)) + geom_col() + theme_ru()
-ggplotly(p, tooltip = "text") |> ru_layout(title = "Min rubrik")
-```
-
-Stödda diagramtyper: stapel, linje, scatter, karta (leaflet), interaktiv tabell (DT).
-
----
-
-## Karta
-
-Shapefilen `Kommun_Sweref99TM.shp` innehåller samtliga svenska kommuner i SWEREF99TM-projektion. Transformeras automatiskt till WGS84 (EPSG:4326) i kartblocket i `template.qmd`. Filtrera till Uppsala län med `filter(startsWith(KnKod, "03"))`.
-
----
-
 ## Krav
 
 ```
