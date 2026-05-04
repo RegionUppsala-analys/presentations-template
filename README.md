@@ -1,6 +1,6 @@
 # Presentationsmallar – Region Uppsala
 
-Samling av återanvändbara presentationsmallar för analyser och rapporter inom Region Uppsala. Mallarna delar samma grafiska profil och färgpalett.
+Samling av återanvändbara presentationsmallar för analyser och rapporter inom Region Uppsala. Mallarna delar samma grafiska profil och färgpalett. Datat som visas i html_presentations är syntetiskt och används endast för att visa diagram-exempel.
 
 ---
 
